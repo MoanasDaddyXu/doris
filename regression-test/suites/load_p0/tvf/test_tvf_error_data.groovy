@@ -132,7 +132,27 @@ suite("test_tvf_error_data", "p0") {
     """
     sql """ truncate table  ${tableName} """
 
-    // Step6: string with escape init
+    // Step6: string with enclose init
+    sql "set enable_insert_strict = false"
+    qt_sql """       
+              INSERT INTO ${tableName}
+                     SELECT * FROM S3 (
+                            "uri" = "http://${bucket}.${s3_endpoint}/${path}/tvf_error_data_with_enclose.csv",
+                            "ACCESS_KEY"= "${ak}",
+                            "SECRET_KEY" = "${sk}",
+                            "column_separator" = ",",
+                            "format" = "csv",
+                            "enclose" = "'",
+                            "region" = "${region}"
+                            );
+       """
+    sql "set enable_insert_strict = true"
+    qt_select """
+            select * from ${tableName}
+    """
+    sql """ truncate table  ${tableName} """
+
+    // Step7: string with escape init
     sql "set enable_insert_strict = false"
     qt_sql """       
               INSERT INTO ${tableName}
@@ -154,7 +174,7 @@ suite("test_tvf_error_data", "p0") {
     sql """ truncate table  ${tableName} """
 
 
-    // Step7: string with separator init
+    // Step8: string with separator init
     sql "set enable_insert_strict = false"
     qt_sql """       
               INSERT INTO ${tableName}
@@ -175,7 +195,7 @@ suite("test_tvf_error_data", "p0") {
     """
     sql """ truncate table  ${tableName} """
 
-    // Step8: string with separator init without enclose
+    // Step9: string with separator init without enclose
     test {
         sql """       
                 INSERT INTO ${tableName}
